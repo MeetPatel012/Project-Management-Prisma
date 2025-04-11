@@ -1,10 +1,13 @@
 "use client";
 
-import { Priority, Project, Task } from "@/state/api";
-import React, { useEffect, useState } from "react";
-import { useAppSelector } from "../redux";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { getProjects } from "@/actions/projectActions";
+import { getTasks } from "@/actions/taskActions";
 import Header from "@/components/Header";
+import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
+import { Priority } from "@/state/api";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { Project, Task } from "@prisma/client";
+import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -18,9 +21,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-import { getTasks } from "@/actions/taskActions";
-import { getProjects } from "@/actions/projectActions";
+import { useAppSelector } from "../redux";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
