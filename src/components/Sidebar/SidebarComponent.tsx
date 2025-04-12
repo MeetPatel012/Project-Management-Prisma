@@ -2,7 +2,6 @@
 
 import { useAppDispatch, useAppSelector } from "@/app/redux";
 import { setIsSliderCollapsed } from "@/state";
-import { useGetProjectsQuery } from "@/state/api";
 import {
   AlertCircle,
   AlertOctagon,
@@ -27,11 +26,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 
-const Sidebar = () => {
+interface Project {
+  id: number;
+  name: string | null;
+}
+
+interface SidebarProps {
+  initialProjects: Project[];
+}
+
+const SidebarWrapper = ({ initialProjects }: SidebarProps) => {
   const [showProjects, setShowProjects] = useState(true);
   const [showPriority, setShowPriority] = useState(true);
 
-  const { data: projects } = useGetProjectsQuery();
   const dispatch = useAppDispatch();
   const isSlidebarCollapsed = useAppSelector(
     (state) => state.global.isSliderCollapsed,
@@ -98,7 +105,7 @@ const Sidebar = () => {
         </button>
         {/* PROJECTS LIST */}
         {showProjects &&
-          projects?.map((project) => (
+          initialProjects?.map((project) => (
             <SidebarLink
               key={project.id}
               icon={Briefcase}
@@ -180,4 +187,4 @@ const SidebarLink = ({ href, icon: Icon, label }: SidebarLinkProps) => {
   );
 };
 
-export default Sidebar;
+export default SidebarWrapper;
