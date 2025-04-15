@@ -2,10 +2,15 @@
 
 import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import Sidebar from "../components/Sidebar";
 import StoreProvider, { useAppSelector } from "./redux";
 
-const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+const DashboardLayout = ({
+  children,
+  sidebar,
+}: {
+  children: React.ReactNode;
+  sidebar: React.ReactNode;
+}) => {
   const isSlidebarCollapsed = useAppSelector(
     (state) => state.global.isSliderCollapsed,
   );
@@ -22,7 +27,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="flex min-h-screen w-full bg-gray-50 text-gray-900">
-      <Sidebar />
+      {sidebar}
       <main
         className={`flex w-full flex-col bg-gray-50 dark:bg-dark-bg ${
           isSlidebarCollapsed ? "" : "md:pl-64"
@@ -35,10 +40,16 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
+const DashboardWrapper = ({
+  children,
+  sidebar,
+}: {
+  children: React.ReactNode;
+  sidebar: React.ReactNode;
+}) => {
   return (
     <StoreProvider>
-      <DashboardLayout>{children}</DashboardLayout>
+      <DashboardLayout sidebar={sidebar}>{children}</DashboardLayout>
     </StoreProvider>
   );
 };
