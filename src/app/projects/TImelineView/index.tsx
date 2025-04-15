@@ -1,8 +1,11 @@
+"use client";
+
 import { useAppSelector } from "@/app/redux";
-import { useGetTasksQuery } from "@/state/api";
+import { getProjectTasks } from "@/server-actions/_board_actions";
+import { Task } from "@/state/api";
 import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 type Props = {
   id: string;
@@ -13,30 +16,43 @@ type TaskTypeItems = "task" | "milestone" | "project";
 
 function Timeline({ id, setIsModalNewTaskOpen }: Props) {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
-
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [displayOptions, setDisplayOptions] = useState<DisplayOption>({
     viewMode: ViewMode.Month,
     locale: "en-US",
   });
 
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        setIsLoading(true);
+        const projectTasks = await getProjectTasks(Number(id));
+        setTasks(projectTasks);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load tasks:", err);
+        setError("An error occurred while fetching tasks");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTasks();
+  }, [id]);
+
   const ganttTasks = useMemo(() => {
-    return (
-      tasks?.map((task) => ({
-        start: new Date(task.startDate as string),
-        end: new Date(task.dueDate as string),
-        name: task.title || "",
-        id: `Task-${task.id}`,
-        type: "task" as TaskTypeItems,
-        progress: task.points ? (task.points / 10) * 100 : 0,
-        isDisabled: false,
-      })) || []
-    );
+    return tasks.map((task) => ({
+      start: new Date(task.startDate as string),
+      end: new Date(task.dueDate as string),
+      name: task.title || "",
+      id: `Task-${task.id}`,
+      type: "task" as TaskTypeItems,
+      progress: task.points ? (task.points / 10) * 100 : 0,
+      isDisabled: false,
+    }));
   }, [tasks]);
 
   const handleViewModeChange = (
@@ -49,7 +65,7 @@ function Timeline({ id, setIsModalNewTaskOpen }: Props) {
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>An error occurred while fetching tasks</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="px-4 xl:px-6">

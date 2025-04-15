@@ -1,9 +1,12 @@
+"use client";
+
 import { useAppSelector } from "@/app/redux";
 import Header from "@/components/Header";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-import { useGetTasksQuery } from "@/state/api";
+import { getProjectTasks } from "@/server-actions/_board_actions";
+import { Task } from "@/state/api";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {
   id: string;
@@ -67,15 +70,30 @@ const columns: GridColDef[] = [
 
 function TableView({ id, setIsModalNewTaskOpen }: Props) {
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        setIsLoading(true);
+        const projectTasks = await getProjectTasks(Number(id));
+        setTasks(projectTasks);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load tasks:', err);
+        setError('An error occurred while fetching tasks');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTasks();
+  }, [id]);
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>An error occurred while fetching tasks</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="h-[540px] w-full px-4 pb-8 xl:px-6">
@@ -94,7 +112,7 @@ function TableView({ id, setIsModalNewTaskOpen }: Props) {
         />
       </div>
       <DataGrid
-        rows={tasks || []}
+        rows={tasks}
         columns={columns}
         className={dataGridClassNames}
         sx={dataGridSxStyles(isDarkMode)}
