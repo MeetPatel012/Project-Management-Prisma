@@ -18,8 +18,8 @@ import {
   YAxis,
 } from "recharts";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-import { Project, Task } from "@prisma/client";
-import { Priority } from "@/lib/constant";
+import { Task } from "@prisma/client";
+import { Priority, Project } from "@/lib/constant";
 
 interface HomePageProps {
   initialTasks: Task[];
