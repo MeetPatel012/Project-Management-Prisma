@@ -1,10 +1,9 @@
 "use client";
 
 import Header from "@/components/Header";
-import { Priority } from "@/lib/constant";
+import { Priority, Project, Task } from "@/lib/constant";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import type { Project, Task } from "@prisma/client";
 import {
   Bar,
   BarChart,
