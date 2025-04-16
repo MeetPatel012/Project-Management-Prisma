@@ -85,9 +85,9 @@ export async function searchItems(searchTerm: string): Promise<SearchResult> {
       projects: projects.map((project) => ({
         id: project.id,
         name: project.name,
-        description: project.description || undefined,
-        startDate: project.startDate?.toISOString() || undefined,
-        endDate: project.endDate?.toISOString() || undefined,
+        description: project.description || null,
+        startDate: project.startDate ? new Date(project.startDate) : null,
+        endDate: project.endDate ? new Date(project.endDate) : null,
       })),
       users: users.map((user) => ({
         userId: user.userId,
