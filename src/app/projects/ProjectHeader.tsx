@@ -16,7 +16,8 @@ type Props = {
   setActiveTab: (TabName: string) => void;
 };
 
-function projectHeader({ activeTab, setActiveTab }: Props) {
+function ProjectHeader({ activeTab, setActiveTab }: Props) {
+  // Changed from 'projectHeader' to 'ProjectHeader'
   const [isModalNewProjectOpen, setISModalNewProjectOpen] = useState(false);
 
   return (
@@ -111,4 +112,4 @@ const TabButton = ({ name, icon, setActiveTab, activeTab }: TabButtonProps) => {
   );
 };
 
-export default projectHeader;
+export default ProjectHeader;

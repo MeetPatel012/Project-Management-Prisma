@@ -1,5 +1,8 @@
+"use client";
+
 import Modal from "@/components/Modal";
-import { Priority, Status, useCreateTaskMutation } from "@/state/api";
+import { createTask } from "@/server-actions/_task_actions";
+import { Priority, Status } from "@/lib/constant";
 import { formatISO } from "date-fns";
 import { useState } from "react";
 
@@ -10,7 +13,7 @@ type Props = {
 };
 
 function ModalNewTask({ isOpen, onClose, id = null }: Props) {
-  const [createTask, { isLoading }] = useCreateTaskMutation();
+  const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<Status>(Status.ToDo);
@@ -25,29 +28,44 @@ function ModalNewTask({ isOpen, onClose, id = null }: Props) {
   const handleSubmit = async () => {
     if (!title || !authorUserId || !(id !== null || projectId)) return;
 
-    const formattedStartDate = formatISO(new Date(startDate), {
-      representation: "complete",
-    });
-    const formattedDueDate = formatISO(new Date(dueDate), {
-      representation: "complete",
-    });
+    try {
+      setIsLoading(true);
+      const formattedStartDate = formatISO(new Date(startDate), {
+        representation: "complete",
+      });
+      const formattedDueDate = formatISO(new Date(dueDate), {
+        representation: "complete",
+      });
 
-    await createTask({
-      title,
-      description,
-      status,
-      priority,
-      tags,
-      startDate: formattedStartDate,
-      dueDate: formattedDueDate,
-      authorUserId: parseInt(authorUserId),
-      assignedUserId: parseInt(assignedUserId),
-      projectId: id !== null ? Number(id) : Number(projectId),
-    });
+      const result = await createTask({
+        title,
+        description,
+        status,
+        priority,
+        tags,
+        startDate: formattedStartDate,
+        dueDate: formattedDueDate,
+        authorUserId: parseInt(authorUserId),
+        assignedUserId: parseInt(assignedUserId),
+        projectId: id !== null ? Number(id) : Number(projectId),
+      });
+
+      if (result.success) {
+        onClose();
+        // Optionally, you can add a toast notification here
+      } else {
+        // Handle error
+        console.error("Failed to create task");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const isFormValid = () => {
-    return title && authorUserId && !(id !== null || projectId);
+    return title && authorUserId && (id !== null || projectId);
   };
 
   const selectStyles =
@@ -82,9 +100,7 @@ function ModalNewTask({ isOpen, onClose, id = null }: Props) {
           <select
             className={selectStyles}
             value={status}
-            onChange={(e) =>
-              setStatus(Status[e.target.value as keyof typeof Status])
-            }
+            onChange={(e) => setStatus(e.target.value as Status)}
           >
             <option value="">Select Status</option>
             <option value={Status.ToDo}>To Do</option>
@@ -95,9 +111,7 @@ function ModalNewTask({ isOpen, onClose, id = null }: Props) {
           <select
             className={selectStyles}
             value={priority}
-            onChange={(e) =>
-              setPriority(Priority[e.target.value as keyof typeof Priority])
-            }
+            onChange={(e) => setPriority(e.target.value as Priority)}
           >
             <option value="">Select Priority</option>
             <option value={Priority.Urgent}>Urgent</option>
@@ -146,7 +160,7 @@ function ModalNewTask({ isOpen, onClose, id = null }: Props) {
           <input
             type="text"
             className={inputStyles}
-            placeholder="Assigned User Id"
+            placeholder="ProjectId"
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
           />

@@ -4,30 +4,47 @@ import Header from "@/components/Header";
 import ProjectCard from "@/components/ProjectCard";
 import TaskCard from "@/components/TaskCard";
 import UserCard from "@/components/UserCard";
-import { useSearchQuery } from "@/state/api";
+import { searchItems } from "@/server-actions/_search_actions";
+import { SearchResult } from "@/state/api";
 import { debounce } from "lodash";
 import React, { useEffect, useState } from "react";
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const {
-    data: searchResults,
-    isLoading,
-    isError,
-  } = useSearchQuery(searchTerm, {
-    skip: searchTerm.length < 3,
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult | null>(null);
+
+  const performSearch = async (term: string) => {
+    if (term.length < 3) return;
+
+    try {
+      setIsLoading(true);
+      setIsError(false);
+      const results = await searchItems(term);
+      setSearchResults(results);
+    } catch (error) {
+      setIsError(true);
+      console.error("Search error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSearch = debounce(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(event.target.value);
+      const term = event.target.value;
+      setSearchTerm(term);
+      performSearch(term);
     },
     500,
   );
 
   useEffect(() => {
-    return handleSearch.cancel;
-  }, [handleSearch.cancel]);
+    return () => {
+      handleSearch.cancel();
+    };
+  }, [handleSearch]);
 
   return (
     <div className="p-8">
@@ -46,7 +63,7 @@ const Search = () => {
         {!isLoading && !isError && searchResults && (
           <div>
             {searchResults.tasks && searchResults.tasks?.length > 0 && (
-              <h2>Tasks</h2>
+              <h2 className="text-black dark:text-white">Tasks</h2>
             )}
             {searchResults.tasks?.map((task) => (
               <TaskCard key={task.id} task={task} />

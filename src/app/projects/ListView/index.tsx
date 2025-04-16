@@ -1,7 +1,10 @@
+"use client";
+
 import Header from "@/components/Header";
 import TaskCard from "@/components/TaskCard";
-import { Task, useGetTasksQuery } from "@/state/api";
-import React from "react";
+import { getProjectTasks } from "@/server-actions/_board_actions";
+import { Task } from "@/state/api";
+import React, { useEffect, useState } from "react";
 
 type Props = {
   id: string;
@@ -9,14 +12,30 @@ type Props = {
 };
 
 function ListView({ id, setIsModalNewTaskOpen }: Props) {
-  const {
-    data: tasks,
-    error,
-    isLoading,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        setIsLoading(true);
+        const projectTasks = await getProjectTasks(Number(id));
+        setTasks(projectTasks);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load tasks:", err);
+        setError("An error occurred while fetching tasks");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTasks();
+  }, [id]);
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>An error occurred while fetching tasks</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="px-4 pb-8 xl:px-6">
@@ -35,7 +54,9 @@ function ListView({ id, setIsModalNewTaskOpen }: Props) {
         />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-        {tasks?.map((task: Task) => <TaskCard key={task.id} task={task} />)}
+        {tasks.map((task) => (
+          <TaskCard key={task.id} task={task} />
+        ))}
       </div>
     </div>
   );

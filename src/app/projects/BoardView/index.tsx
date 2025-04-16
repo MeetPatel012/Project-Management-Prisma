@@ -1,13 +1,16 @@
-import {
-  Task as TaskType,
-  useGetTasksQuery,
-  useUpdateTaskStatusMutation,
-} from "@/state/api";
+"use client";
+
+import { Task as TaskType } from "@/state/api";
 import { format } from "date-fns";
 import { EllipsisVertical, MessageSquareMore, Plus } from "lucide-react";
 import Image from "next/image";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { useEffect, useState, useTransition } from "react";
+import {
+  getProjectTasks,
+  updateTaskStatus,
+} from "@/server-actions/_board_actions";
 
 type BoardProps = {
   id: string;
@@ -17,20 +20,44 @@ type BoardProps = {
 const taskStatus = ["To Do", "Work In Progress", "Under Review", "Completed"];
 
 const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
-  const {
-    data: tasks,
-    isLoading,
-    error,
-  } = useGetTasksQuery({ projectId: Number(id) });
+  const [tasks, setTasks] = useState<TaskType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  const [updateTaskStatus] = useUpdateTaskStatusMutation();
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        setIsLoading(true);
+        const projectTasks = await getProjectTasks(Number(id));
+        setTasks(projectTasks);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to load tasks:", err);
+        setError("An error occurred while fetching tasks");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const moveTask = (taskId: number, toStatus: string) => {
-    updateTaskStatus({ taskId, status: toStatus });
+    loadTasks();
+  }, [id]);
+
+  const moveTask = async (taskId: number, toStatus: string) => {
+    startTransition(async () => {
+      try {
+        const updatedTask = await updateTaskStatus(taskId, toStatus);
+        setTasks((prevTasks) =>
+          prevTasks.map((task) => (task.id === taskId ? updatedTask : task)),
+        );
+      } catch (err) {
+        console.error("Failed to update task status:", err);
+      }
+    });
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>An error occurred while fetching tasks</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -39,7 +66,7 @@ const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
           <TaskColumn
             key={status}
             status={status}
-            tasks={tasks || []}
+            tasks={tasks}
             moveTask={moveTask}
             setIsModalNewTaskOpen={setIsModalNewTaskOpen}
           />
