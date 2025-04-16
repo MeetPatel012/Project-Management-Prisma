@@ -18,6 +18,50 @@ interface CommentWithUser {
   };
 }
 
+// Add this interface to define the Prisma Task type
+interface PrismaTask {
+  id: number;
+  title: string;
+  description: string | null;
+  status: string | null;
+  priority: string | null;
+  tags: string | null;
+  startDate: Date | null;
+  dueDate: Date | null;
+  points: number | null;
+  projectId: number;
+  authorUserId: number;
+  assignedUserId: number | null;
+  author: {
+    userId: number;
+    username: string;
+    profilePictureUrl: string | null;
+    cognitoId: string;
+    teamId: number | null;
+  };
+  assignee: {
+    userId: number;
+    username: string;
+    profilePictureUrl: string | null;
+    cognitoId: string;
+    teamId: number | null;
+  } | null;
+  comments: {
+    id: number;
+    text: string;
+    taskId: number;
+    userId: number;
+    user: {
+      userId: number;
+      username: string;
+      profilePictureUrl: string | null;
+      cognitoId: string;
+      teamId: number | null;
+    };
+  }[];
+  attachments: any[];
+}
+
 export async function getProjectTasks(projectId: number): Promise<any> {
   try {
     const tasks = await prisma.task.findMany({
@@ -34,7 +78,7 @@ export async function getProjectTasks(projectId: number): Promise<any> {
       },
     });
 
-    return tasks.map((task) => ({
+    return tasks.map((task: PrismaTask) => ({
       id: task.id,
       title: task.title,
       description: task.description || undefined,
