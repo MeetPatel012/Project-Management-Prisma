@@ -18,7 +18,28 @@ interface CommentWithUser {
   };
 }
 
-// Add this interface to define the Prisma Task type
+interface PrismaComment {
+  id: number;
+  text: string;
+  taskId: number;
+  userId: number;
+  user: {
+    userId: number;
+    username: string;
+    profilePictureUrl: string | null;
+    cognitoId: string;
+    teamId: number | null;
+  };
+}
+
+interface PrismaUser {
+  userId: number;
+  username: string;
+  profilePictureUrl: string | null;
+  cognitoId: string;
+  teamId: number | null;
+}
+
 interface PrismaTask {
   id: number;
   title: string;
@@ -32,37 +53,48 @@ interface PrismaTask {
   projectId: number;
   authorUserId: number;
   assignedUserId: number | null;
-  author: {
-    userId: number;
-    username: string;
-    profilePictureUrl: string | null;
-    cognitoId: string;
-    teamId: number | null;
-  };
-  assignee: {
-    userId: number;
-    username: string;
-    profilePictureUrl: string | null;
-    cognitoId: string;
-    teamId: number | null;
-  } | null;
-  comments: {
-    id: number;
-    text: string;
-    taskId: number;
-    userId: number;
-    user: {
-      userId: number;
-      username: string;
-      profilePictureUrl: string | null;
-      cognitoId: string;
-      teamId: number | null;
-    };
-  }[];
+  author: PrismaUser;
+  assignee: PrismaUser | null;
+  comments: PrismaComment[];
   attachments: any[];
 }
 
-export async function getProjectTasks(projectId: number): Promise<any> {
+interface TaskResponse {
+  id: number;
+  title: string;
+  description?: string;
+  status?: Status;
+  priority?: Priority;
+  tags?: string;
+  startDate?: string;
+  dueDate?: string;
+  points?: number;
+  projectId: number;
+  authorUserId: number;
+  assignedUserId?: number;
+  author: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+    cognitoId: string;
+    teamId?: number;
+    email: string;
+  };
+  assignee?: {
+    userId: number;
+    username: string;
+    profilePictureUrl?: string;
+    cognitoId: string;
+    teamId?: number;
+    email: string;
+  };
+  comments: CommentWithUser[];
+  attachments: any[];
+}
+
+export async function getProjectTasks(
+  projectId: number,
+): Promise<TaskResponse[]> {
   try {
     const tasks = await prisma.task.findMany({
       where: { projectId },
@@ -78,55 +110,57 @@ export async function getProjectTasks(projectId: number): Promise<any> {
       },
     });
 
-    return tasks.map((task: PrismaTask) => ({
-      id: task.id,
-      title: task.title,
-      description: task.description || undefined,
-      status: (task.status as Status) || undefined,
-      priority: (task.priority as Priority) || undefined,
-      tags: task.tags || undefined,
-      startDate: task.startDate?.toISOString() || undefined,
-      dueDate: task.dueDate?.toISOString() || undefined,
-      points: task.points || undefined,
-      projectId: task.projectId,
-      authorUserId: task.authorUserId,
-      assignedUserId: task.assignedUserId || undefined,
-      author: {
-        userId: task.author.userId,
-        username: task.author.username,
-        profilePictureUrl: task.author.profilePictureUrl || undefined,
-        cognitoId: task.author.cognitoId,
-        teamId: task.author.teamId || undefined,
-        email: "",
-      },
-      assignee: task.assignee
-        ? {
-            userId: task.assignee.userId,
-            username: task.assignee.username,
-            profilePictureUrl: task.assignee.profilePictureUrl || undefined,
-            cognitoId: task.assignee.cognitoId,
-            teamId: task.assignee.teamId || undefined,
-            email: "",
-          }
-        : undefined,
-      comments: task.comments.map(
-        (comment): CommentWithUser => ({
-          id: comment.id,
-          text: comment.text,
-          taskId: comment.taskId,
-          userId: comment.userId,
-          user: {
-            userId: comment.user.userId,
-            username: comment.user.username,
-            email: "",
-            profilePictureUrl: comment.user.profilePictureUrl || undefined,
-            cognitoId: comment.user.cognitoId,
-            teamId: comment.user.teamId || undefined,
-          },
-        }),
-      ),
-      attachments: task.attachments,
-    }));
+    return tasks.map(
+      (task: PrismaTask): TaskResponse => ({
+        id: task.id,
+        title: task.title,
+        description: task.description || undefined,
+        status: (task.status as Status) || undefined,
+        priority: (task.priority as Priority) || undefined,
+        tags: task.tags || undefined,
+        startDate: task.startDate?.toISOString() || undefined,
+        dueDate: task.dueDate?.toISOString() || undefined,
+        points: task.points || undefined,
+        projectId: task.projectId,
+        authorUserId: task.authorUserId,
+        assignedUserId: task.assignedUserId || undefined,
+        author: {
+          userId: task.author.userId,
+          username: task.author.username,
+          profilePictureUrl: task.author.profilePictureUrl || undefined,
+          cognitoId: task.author.cognitoId,
+          teamId: task.author.teamId || undefined,
+          email: "",
+        },
+        assignee: task.assignee
+          ? {
+              userId: task.assignee.userId,
+              username: task.assignee.username,
+              profilePictureUrl: task.assignee.profilePictureUrl || undefined,
+              cognitoId: task.assignee.cognitoId,
+              teamId: task.assignee.teamId || undefined,
+              email: "",
+            }
+          : undefined,
+        comments: task.comments.map(
+          (comment: PrismaComment): CommentWithUser => ({
+            id: comment.id,
+            text: comment.text,
+            taskId: comment.taskId,
+            userId: comment.userId,
+            user: {
+              userId: comment.user.userId,
+              username: comment.user.username,
+              email: "",
+              profilePictureUrl: comment.user.profilePictureUrl || undefined,
+              cognitoId: comment.user.cognitoId,
+              teamId: comment.user.teamId || undefined,
+            },
+          }),
+        ),
+        attachments: task.attachments,
+      }),
+    );
   } catch (error) {
     console.error("Error fetching tasks:", error);
     throw new Error("Failed to fetch tasks");
@@ -136,7 +170,7 @@ export async function getProjectTasks(projectId: number): Promise<any> {
 export async function updateTaskStatus(
   taskId: number,
   status: string,
-): Promise<any> {
+): Promise<TaskResponse> {
   try {
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
@@ -186,7 +220,7 @@ export async function updateTaskStatus(
           }
         : undefined,
       comments: updatedTask.comments.map(
-        (comment): CommentWithUser => ({
+        (comment: PrismaComment): CommentWithUser => ({
           id: comment.id,
           text: comment.text,
           taskId: comment.taskId,
