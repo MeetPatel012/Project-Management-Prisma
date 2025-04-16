@@ -34,7 +34,7 @@ export async function getProjectTasks(projectId: number): Promise<any> {
       },
     });
 
-    return tasks.map((task) => ({
+    return tasks.map((task: any) => ({
       id: task.id,
       title: task.title,
       description: task.description || undefined,
@@ -66,7 +66,7 @@ export async function getProjectTasks(projectId: number): Promise<any> {
           }
         : undefined,
       comments: task.comments.map(
-        (comment): CommentWithUser => ({
+        (comment: any): CommentWithUser => ({
           id: comment.id,
           text: comment.text,
           taskId: comment.taskId,
@@ -142,7 +142,7 @@ export async function updateTaskStatus(
           }
         : undefined,
       comments: updatedTask.comments.map(
-        (comment): CommentWithUser => ({
+        (comment: any): CommentWithUser => ({
           id: comment.id,
           text: comment.text,
           taskId: comment.taskId,
