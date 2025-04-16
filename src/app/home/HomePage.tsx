@@ -19,7 +19,7 @@ import {
 } from "recharts";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
 import { Project, Task } from "@prisma/client";
-import { Priority } from "@/state/api";
+import { Priority } from "@/lib/constant";
 
 interface HomePageProps {
   initialTasks: Task[];

@@ -2,8 +2,8 @@
 
 import Header from "@/components/Header";
 import TaskCard from "@/components/TaskCard";
+import { Task } from "@/lib/constant";
 import { getProjectTasks } from "@/server-actions/_board_actions";
-import { Task } from "@/state/api";
 import React, { useEffect, useState } from "react";
 
 type Props = {

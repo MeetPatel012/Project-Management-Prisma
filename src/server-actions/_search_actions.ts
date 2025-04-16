@@ -1,8 +1,7 @@
 "use server";
 
-import { Status } from "@/lib/constant";
+import { Priority, SearchResult, Status } from "@/lib/constant";
 import prisma from "@/lib/prisma";
-import { Priority, SearchResult } from "@/state/api";
 
 export async function searchItems(searchTerm: string): Promise<SearchResult> {
   try {

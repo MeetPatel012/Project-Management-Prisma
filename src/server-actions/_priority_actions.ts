@@ -1,8 +1,7 @@
 "use server";
 
-import { Status } from "@/lib/constant";
+import { Priority, Status, Task } from "@/lib/constant";
 import prisma from "@/lib/prisma";
-import { Priority, Task } from "@/state/api";
 
 export async function getTasksByUserAndPriority(
   userId: number,
