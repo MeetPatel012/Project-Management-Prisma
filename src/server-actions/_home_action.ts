@@ -15,7 +15,7 @@ export async function getTasks(projectId: number) {
       },
     });
 
-    return tasks.map((task) => ({
+    return tasks.map((task: any) => ({
       id: task.id,
       title: task.title,
       description: task.description || undefined, // Convert null to undefined

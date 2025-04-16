@@ -50,7 +50,7 @@ export async function searchItems(searchTerm: string): Promise<SearchResult> {
     });
 
     return {
-      tasks: tasks.map((task) => ({
+      tasks: tasks.map((task: any) => ({
         id: task.id,
         title: task.title,
         description: task.description || undefined,
@@ -82,14 +82,14 @@ export async function searchItems(searchTerm: string): Promise<SearchResult> {
             }
           : undefined,
       })),
-      projects: projects.map((project) => ({
+      projects: projects.map((project: any) => ({
         id: project.id,
         name: project.name,
         description: project.description || null,
         startDate: project.startDate ? new Date(project.startDate) : null,
         endDate: project.endDate ? new Date(project.endDate) : null,
       })),
-      users: users.map((user) => ({
+      users: users.map((user: any) => ({
         userId: user.userId,
         username: user.username,
         profilePictureUrl: user.profilePictureUrl || undefined,
