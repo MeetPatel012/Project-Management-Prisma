@@ -2,7 +2,6 @@
 
 import { CreateTaskInput } from "@/lib/constant";
 import prisma from "@/lib/prisma";
-import { Priority, Status } from "@/state/api";
 
 export async function createTask(data: CreateTaskInput) {
   try {

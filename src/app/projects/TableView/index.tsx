@@ -2,9 +2,9 @@
 
 import { useAppSelector } from "@/app/redux";
 import Header from "@/components/Header";
+import { Task } from "@/lib/constant";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
 import { getProjectTasks } from "@/server-actions/_board_actions";
-import { Task } from "@/state/api";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React, { useEffect, useState } from "react";
 
@@ -82,8 +82,8 @@ function TableView({ id, setIsModalNewTaskOpen }: Props) {
         setTasks(projectTasks);
         setError(null);
       } catch (err) {
-        console.error('Failed to load tasks:', err);
-        setError('An error occurred while fetching tasks');
+        console.error("Failed to load tasks:", err);
+        setError("An error occurred while fetching tasks");
       } finally {
         setIsLoading(false);
       }

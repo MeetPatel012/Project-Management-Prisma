@@ -4,8 +4,8 @@ import { useAppSelector } from "@/app/redux";
 import Header from "@/components/Header";
 import ModalNewTask from "@/components/ModalNewTask";
 import TaskCard from "@/components/TaskCard";
+import { Priority, Task } from "@/lib/constant";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-import { Priority, Task } from "@/state/api";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import React, { useState } from "react";
 
