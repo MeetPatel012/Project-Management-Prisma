@@ -1,9 +1,9 @@
 export interface Project {
   id: number;
-  name?: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
+  name: string;
+  description: string | null;
+  startDate: Date | null;
+  endDate: Date | null;
 }
 
 export enum Priority {

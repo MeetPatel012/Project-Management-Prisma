@@ -1,4 +1,4 @@
-import { Priority } from "@/state/api";
+import { Priority } from "@/lib/constant";
 import ReusablePriorityPage from "../reusablePriorityPage";
 
 function Medium() {

@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
-import { useAppSelector } from "../redux";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Header from "@/components/Header";
+import { Priority, Project, Task } from "@/lib/constant";
+import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import {
   Bar,
   BarChart,
@@ -17,9 +17,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
-import { Project, Task } from "@prisma/client";
-import { Priority } from "@/state/api";
+import { useAppSelector } from "../redux";
 
 interface HomePageProps {
   initialTasks: Task[];

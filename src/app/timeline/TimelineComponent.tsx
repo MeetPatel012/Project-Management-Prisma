@@ -2,7 +2,7 @@
 
 import { useAppSelector } from "@/app/redux";
 import Header from "@/components/Header";
-import { Project } from "@prisma/client";
+import { Project } from "@/lib/constant";
 import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
 import React, { useMemo, useState } from "react";

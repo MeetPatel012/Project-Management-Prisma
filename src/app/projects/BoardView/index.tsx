@@ -1,6 +1,6 @@
 "use client";
 
-import { Task as TaskType } from "@/state/api";
+import { Task as TaskType } from "@/lib/constant";
 import { format } from "date-fns";
 import { EllipsisVertical, MessageSquareMore, Plus } from "lucide-react";
 import Image from "next/image";
